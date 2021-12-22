@@ -109,6 +109,23 @@ EFI_STATUS OpenRootDir(EFI_HANDLE image_handle, EFI_FILE_PROTOCOL **root) {
   return EFI_SUCCESS;
 }
 
+const CHAR16* GetPixelFormatUnicode(EFI_GRAPHICS_PIXEL_FORMAT fmt) {
+  switch (fmt) {
+    case PixelRedGreenBlueReserved8BitPerColor:
+      return L"PixelRedGreenBlueReserved8BitPerColor";
+    case PixelBlueGreenRedReserved8BitPerColor:
+      return L"PixelBlueGreenRedReserved8BitPerColor";
+    case PixelBitMask:
+      return L"PixelBitMask";
+    case PixelBltOnly:
+      return L"PixelBltOnly";
+    case PixelFormatMax:
+      return L"PixelFormatMax";
+    default:
+      return L"InvalidPixelFormat";
+  }
+}
+
 // day01であった構造体の定義がなくなっている
 // EDK2のおかげ
 EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_table) {
@@ -169,6 +186,24 @@ EFI_STATUS EFIAPI UefiMain(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE *system_tab
       Print(L"Could not exit boot service: %r\n", status);
       while (1);
     }
+  }
+
+  EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
+  OpenGOP(image_handle, &gop);
+  Print(L"Resolution: %ux%u, Pixel Format: %s, %u pixels/line\n",
+        gop->Mode->Info->HorizontalResolution,
+        gop->Mode->Info->VerticalResolution,
+        GetPixelFormatUnicode(gop->Mode->Info->PixelFormat),
+        gop->Mode->Info->PixelsPerScanLine
+  );
+  Print(L"Frame Buffer: 0x%0lx - 0x%0lx, Size: %lu bytes\n",
+        gop->Mode->FrameBufferBase,
+        gop->Mode->FrameBufferBase + gop->Mode->FrameBufferSize,
+        gop->Mode->FrameBufferSize
+  );
+  UINT8 *frame_buffer = (UINT8*)gop->Mode->FrameBufferBase;
+  for (UINTN i=0;i < gop->Mode->FrameBufferSize; i++) {
+    frame_buffer[i] = 255;
   }
 
   // Kernelのentry pointへのポインタのアドレス
