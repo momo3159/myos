@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdint.h>
 
 typedef uintptr_t Elf64_Addr;
