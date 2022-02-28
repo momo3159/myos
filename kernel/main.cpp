@@ -16,6 +16,22 @@ void operator delete(void* obj) noexcept {}
 char pixel_writer_buf[sizeof(RGBResv8BitPerColorPixelWriter)];
 PixelWriter* pixel_writer;
 
+char console_buf[sizeof(Console)];
+Console* console;
+
+int printk(const char* format, ...) {
+  va_list ap;
+  int result;
+  char s[1024];
+
+  va_start(ap, format);
+  result = vsprintf(s, format, ap);
+  va_end(ap);
+
+  console->PutString(s);
+  return result;
+}
+
 extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
   switch (frame_buffer_config.pixel_format) {
     case kPixelRGBResv8BitPerColor:
@@ -34,23 +50,18 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
     }
   }
 
-  // int i = 0;
-  // for (char c = '!'; c <= '~'; ++c, ++i) {
-  //   WriteAscii(*pixel_writer, 8 * i, 50, c, {0, 0, 0});
-  // }
-
-  Console console{*pixel_writer, {0, 0, 0}, {255, 255, 255}};
-  // char buf[128];
-  // for (int i = 0; i < 27; ++i) {
-  //   sprintf(buf, "line %d ", i);
-  //   console.PutString(buf);
-  // }
+  console = new(console_buf) Console{*pixel_writer, {0, 0, 0}, {255, 255, 255}};
 
   char buf1[128];
   for (int i = 0; i < 27; ++i) {
     sprintf(buf1, "line %d\n", i);
-    console.PutString(buf1);
+    console->PutString(buf1);
   }
 
   while (1) __asm__("hlt");
 }
+
+  // int i = 0;
+  // for (char c = '!'; c <= '~'; ++c, ++i) {
+  //   WriteAscii(*pixel_writer, 8 * i, 50, c, {0, 0, 0});
+  // }
