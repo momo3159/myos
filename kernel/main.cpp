@@ -84,6 +84,7 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
   FillRectangle(*pixel_writer, {0, kFrameHeight-50}, {kFrameWidth / 5, 50}, {80, 80, 80});
   DrawRectangle(*pixel_writer, {10, kFrameHeight-40}, {30, 30}, {160, 160, 160});
 
+
   console = new(console_buf) Console{
     *pixel_writer, kDesktopFGColor, kDesktopBGColor
   };
