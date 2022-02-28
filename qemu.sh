@@ -1,0 +1,1 @@
+source ~/Documents/workspace/mikanos-build/devenv/run_qemu.sh ~/edk2/Build/BootLoaderX64/DEBUG_CLANG38/X64/Loader.efi ~/Documents/workspace/myos/kernel/kernel.elf
